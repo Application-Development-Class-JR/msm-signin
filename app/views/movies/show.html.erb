@@ -4,12 +4,26 @@
       Movie #<%= @the_movie.id %> details
     </h1>
 
+<% if @current_user != nil %>
 <%# Try adding the bookmark button %>
-<form action="/add_bookmark">
-<input type="hidden" name="the_user_id" value="<%= session.fetch(:user_id) %>">
-<input type="hidden" name="the_movie_id" value="<%= @the_movie.id%>">
-<button>Bookmark this movie!</button>
-</form>
+
+<%# Para o bookmark só aparecer para quem ainda não está na lista, temos que incluir o if%>
+<% current_user_bookmarks = Bookmark.where({ :movie_id => @the_movie.id, :user_id => session.fetch(:user_id) })%>
+<%# precisamos pegar o id do que foi criado para poder usar na funçao delete que está no link do else%>
+<% the_bookmark = current_user_bookmarks.at(0) %>
+
+
+<%# Opcao 1 para o if --> if current_user_bookmarks.count == 0 %>
+<% if the_bookmark == nil %>
+  <form action="/insert_bookmark" method="post">
+  <input type="hidden" name="query_user_id" value="<%= session.fetch(:user_id) %>">
+  <input type="hidden" name="query_movie_id" value="<%= @the_movie.id%>">
+  <button>Bookmark this movie!</button>
+  </form>
+<% else %>
+  <a href="/delete_bookmark/<%= the_bookmark.id %>">Un-bookmark</a>
+<% end %>
+<% end %>
 
     <div>
       <div>
